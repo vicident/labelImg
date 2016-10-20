@@ -8,6 +8,7 @@ import json
 import numpy
 import os.path
 import sys
+import cv2
 
 class LabelFileError(Exception):
     pass
@@ -63,8 +64,16 @@ class LabelFile(object):
         imgFileNameWithoutExt = os.path.splitext(imgFileName)[0]
         # Read from file path because self.imageData might be empty if saving to
         # Pascal format
-        image = QImage()
-        image.load(imagePath)
+
+        print(str(imagePath))
+        cvImg = cv2.imread(str(imagePath))
+        height, width, channel = cvImg.shape
+        bytesPerLine = channel * width
+        qImg = QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_RGB888)
+
+        #image = QImage()
+        #image.load(imagePath)
+        image = qImg
         imageShape = [image.height(), image.width(), 1 if image.isGrayscale() else 3]
         writer = PascalVocWriter(imgFolderName, imgFileNameWithoutExt,\
                                  imageShape, localImgPath=imagePath)

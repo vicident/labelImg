@@ -13,6 +13,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 import resources
+import cv2
 
 from lib import struct, newAction, newIcon, addActions, fmtShortcut
 from shape import Shape, DEFAULT_LINE_COLOR, DEFAULT_FILL_COLOR
@@ -713,8 +714,13 @@ class MainWindow(QMainWindow, WindowMixin):
                 # Load image:
                 # read data first and store for saving into label file.
                 self.imageData = read(filename, None)
+                cvImg = cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2RGB)
+                height, width, channel = cvImg.shape
+                bytesPerLine = channel * width
+                qImg = QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_RGB888)
+                #self.imageData = qImg
                 self.labelFile = None
-            image = QImage.fromData(self.imageData)
+                image = qImg #QImage.fromData(self.imageData)
             if image.isNull():
                 self.errorMessage(u'Error opening file',
                         u"<p>Make sure <i>%s</i> is a valid image file." % filename)
